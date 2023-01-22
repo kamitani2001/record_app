@@ -1,16 +1,13 @@
 package com.example.myapplication;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
+
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,26 +41,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if (!permissionToRecordAccepted ) finish();
     }
-
-    //レコードに関するの関数の呼び出し
-    private void onRecord(boolean start) {
-        if (start) {
-            startRecording(); //録音開始
-        } else {
-            stopRecording(); //録音停止
-        }
-    }
-
-    //再生に関するの関数の呼び出し
-    private void onPlay(boolean start) {
-        if (start) {
-            startPlaying(); //音声再生
-        } else {
-            stopPlaying(); //音声停止
-        }
-    }
-
-    //音声再生
+    //---------------音声---------------
+    //再生
     private void startPlaying() {
         player = new MediaPlayer();
         try {
@@ -74,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.e(LOG_TAG, "prepare() failed");
         }
     }
-    //音声停止
+    //停止
     private void stopPlaying() {
         player.release();
         player = null;
@@ -113,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.record).setOnClickListener(this);
         findViewById(R.id.playback).setOnClickListener(this);
 
-
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/audiorecordtest.3gp";
 
@@ -125,29 +103,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v.getId() == R.id.record) {
             if(record_bool){
+                if(!playback_bool) {
+                    playback_bool = true;
+                    ((TextView) findViewById(R.id.playback)).setText("音源再生");
+                    stopPlaying(); //音声停止
+                }
                 record_bool = false;
                 ((TextView)findViewById(R.id.record)).setText("録音停止");
-                onRecord(true);
+                startRecording();
             }
             else{
                 record_bool = true;
                 ((TextView)findViewById(R.id.record)).setText("録音開始");
-                onRecord(false);
+                stopRecording(); //録音停止
             }
-
         }
+
         else if (v.getId() == R.id.playback) {
             if(playback_bool) {
+                if(!record_bool) {
+                    record_bool = true;
+                    ((TextView) findViewById(R.id.record)).setText("録音開始");
+                    stopRecording(); //録音停止
+                }
                 playback_bool = false;
-                ((TextView)findViewById(R.id.playback)).setText("音源停止");
-                onPlay(true);
+                ((TextView)findViewById(R.id.playback)).setText("音源終了");
+                startPlaying(); //音声再生
             }
             else {
                 playback_bool = true;
-                ((TextView)findViewById(R.id.playback)).setText("音源再生");
-                onPlay(false);
+                ((TextView) findViewById(R.id.playback)).setText("音源再生");
+                stopPlaying(); //音声停止
             }
-
         }
     }
 
@@ -165,4 +152,3 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 }
-
