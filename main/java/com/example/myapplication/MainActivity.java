@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,15 +19,15 @@ import androidx.core.app.ActivityCompat;
 
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final String LOG_TAG = "AudioRecordTest";
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static String fileName = null;
     private MediaPlayer   player = null;
-    private PlayButton   playButton = null;
     private MediaRecorder recorder = null;
-    private RecordButton recordButton = null;
+    private boolean playback_bool = true;
+    private boolean record_bool = true;
 
     //録音の権限用
     private boolean permissionToRecordAccepted = false;
@@ -93,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
         }
-
         recorder.start();
     }
 
@@ -105,82 +105,51 @@ public class MainActivity extends AppCompatActivity {
         recorder = null;
     }
 
-
-
-    class RecordButton extends androidx.appcompat.widget.AppCompatButton {
-        boolean mStartRecording = true;
-
-        OnClickListener clicker = new OnClickListener() {
-            public void onClick(View v) {
-                onRecord(mStartRecording);
-                if (mStartRecording) {
-                    setText("Stop recording");
-                } else {
-                    setText("Start recording");
-                }
-                mStartRecording = !mStartRecording;
-            }
-        };
-
-        public RecordButton(Context ctx) {
-            super(ctx);
-            setText("Start recording");
-            setOnClickListener(clicker);
-        }
-    }
-
-
-    class PlayButton extends androidx.appcompat.widget.AppCompatButton {
-        boolean mStartPlaying = true;
-
-        OnClickListener clicker = new OnClickListener() {
-            public void onClick(View v) {
-                onPlay(mStartPlaying);
-                if (mStartPlaying) {
-                    setText("Stop playing");
-                } else {
-                    setText("Start playing");
-                }
-                mStartPlaying = !mStartPlaying;
-            }
-        };
-
-        public PlayButton(Context ctx) {
-            super(ctx);
-            setText("Start playing");
-            setOnClickListener(clicker);
-        }
-    }
-
-
-
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+        setContentView(R.layout.activity_main);
 
-        // Record to the external cache directory for visibility
+        findViewById(R.id.record).setOnClickListener(this);
+        findViewById(R.id.playback).setOnClickListener(this);
+
+
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/audiorecordtest.3gp";
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
-
-        LinearLayout ll = new LinearLayout(this);
-        recordButton = new RecordButton(this);
-        ll.addView(recordButton,
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        0));
-        playButton = new PlayButton(this);
-        ll.addView(playButton,
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        0));
-        setContentView(ll);
     }
 
+    //ボタンイベント
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.record) {
+            if(record_bool){
+                record_bool = false;
+                ((TextView)findViewById(R.id.record)).setText("録音停止");
+                onRecord(true);
+            }
+            else{
+                record_bool = true;
+                ((TextView)findViewById(R.id.record)).setText("録音開始");
+                onRecord(false);
+            }
 
+        }
+        else if (v.getId() == R.id.playback) {
+            if(playback_bool) {
+                playback_bool = false;
+                ((TextView)findViewById(R.id.playback)).setText("音源停止");
+                onPlay(true);
+            }
+            else {
+                playback_bool = true;
+                ((TextView)findViewById(R.id.playback)).setText("音源再生");
+                onPlay(false);
+            }
+
+        }
+    }
 
     @Override
     public void onStop() {
