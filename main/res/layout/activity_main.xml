@@ -15,6 +15,7 @@
         android:text="録音開始"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/playback"
         android:layout_width="wrap_content"
@@ -24,8 +25,5 @@
         android:text="音源再生"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
