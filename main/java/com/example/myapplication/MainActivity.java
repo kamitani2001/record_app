@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MediaRecorder recorder = null;
     private boolean playback_bool = true;
     private boolean record_bool = true;
+    private boolean pause_bool = true;
 
     //録音の権限用
     private boolean permissionToRecordAccepted = false;
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         findViewById(R.id.record).setOnClickListener(this);
         findViewById(R.id.playback).setOnClickListener(this);
+        findViewById(R.id.playback_pause).setOnClickListener(this);
 
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/audiorecordtest.3gp";
@@ -131,10 +133,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startPlaying(); //音声再生
             }
             else {
+                if(!pause_bool){
+                    pause_bool = true;
+                    ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
+                }
                 playback_bool = true;
                 ((TextView) findViewById(R.id.playback)).setText("音源再生");
                 stopPlaying(); //音声停止
             }
+        }
+        else if(v.getId() == R.id.playback_pause){
+            if(pause_bool && !playback_bool){
+                pause_bool = false;
+                ((TextView) findViewById(R.id.playback_pause)).setText("再生");
+                player.pause(); //音声一時停止
+            }
+            else if(!pause_bool){
+                pause_bool = true;
+                ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
+                player.start(); //途中から再生
+            }
+
         }
     }
 
