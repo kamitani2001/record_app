@@ -21,12 +21,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String LOG_TAG = "AudioRecordTest";
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static String fileName = null;
-    private MediaPlayer   player = null;
+    private MediaPlayer player = null;
     private MediaRecorder recorder = null;
-    private boolean playback_bool = true;
-    private boolean record_bool = true;
-    private boolean pause_bool = true;
-
+    private boolean playback_bool = true; //再生ボタンのbool
+    private boolean record_bool = true; //録音ボタンのbool
+    private boolean pause_bool = true; //一時停止ボタンのbool
     //録音の権限用
     private boolean permissionToRecordAccepted = false;
     private String [] permissions = {Manifest.permission.RECORD_AUDIO};
@@ -110,6 +109,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ((TextView) findViewById(R.id.playback)).setText("音源再生");
                     stopPlaying(); //音声停止
                 }
+                if(!pause_bool) {
+                    pause_bool = true;
+                    ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
+                }
                 record_bool = false;
                 ((TextView)findViewById(R.id.record)).setText("録音停止");
                 startRecording();
@@ -120,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 stopRecording(); //録音停止
             }
         }
-
         else if (v.getId() == R.id.playback) {
             if(playback_bool) {
                 if(!record_bool) {
@@ -153,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
                 player.start(); //途中から再生
             }
-
         }
     }
 
@@ -161,13 +162,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onStop() {
         super.onStop();
         if (recorder != null) {
+            record_bool = true;
+            ((TextView) findViewById(R.id.record)).setText("録音開始");
+
             recorder.release();
             recorder = null;
         }
 
         if (player != null) {
+            playback_bool = true;
+            ((TextView) findViewById(R.id.playback)).setText("音源再生");
+
             player.release();
             player = null;
+        }
+
+        if (!pause_bool){
+            pause_bool = true;
+            ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
         }
     }
 }
