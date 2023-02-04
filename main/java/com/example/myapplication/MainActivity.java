@@ -104,6 +104,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.record_pause).setOnClickListener(this);
         findViewById(R.id.playback).setOnClickListener(this);
         findViewById(R.id.playback_pause).setOnClickListener(this);
+        findViewById(R.id.tenSkip).setOnClickListener(this);
+        findViewById(R.id.tenReturn).setOnClickListener(this);
 
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/file.mp3";
@@ -186,6 +188,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 play_pause_bool = true;
                 ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
                 player.start(); //途中から再生
+            }
+        }
+        else if (v.getId() == R.id.tenSkip){
+            if(!playback_bool) {
+                int currentPosition = player.getCurrentPosition();
+                player.seekTo(currentPosition + 10000);
+            }
+        }
+        else if (v.getId() == R.id.tenReturn){
+            if(!playback_bool) {
+                int currentPosition = player.getCurrentPosition();
+                player.seekTo(currentPosition - 10000);
             }
         }
     }
