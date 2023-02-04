@@ -24,8 +24,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MediaPlayer player = null;
     private MediaRecorder recorder = null;
     private boolean playback_bool = true; //再生ボタンのbool
+    private boolean play_pause_bool = true; //再生の一時停止ボタンのbool
     private boolean record_bool = true; //録音ボタンのbool
-    private boolean pause_bool = true; //一時停止ボタンのbool
+    private boolean record_pause_bool = true; //録音の一時停止ボタンのbool
     //録音の権限用
     private boolean permissionToRecordAccepted = false;
     private String [] permissions = {Manifest.permission.RECORD_AUDIO};
@@ -48,11 +49,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try {
             player.setDataSource(fileName);
             player.prepare();
+            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    // 再生終了時に呼び出されます
+                    playback_bool = true;
+                    ((TextView) findViewById(R.id.playback)).setText("音源再生");
+                    stopPlaying(); //音声停止
+                }
+            });
             player.start();
         } catch (IOException e) {
             Log.e(LOG_TAG, "prepare() failed");
         }
     }
+
     //停止
     private void stopPlaying() {
         player.release();
@@ -87,14 +98,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main); //activity_main.xmlと接続
 
         findViewById(R.id.record).setOnClickListener(this);
+        findViewById(R.id.record_pause).setOnClickListener(this);
         findViewById(R.id.playback).setOnClickListener(this);
         findViewById(R.id.playback_pause).setOnClickListener(this);
 
         fileName = getExternalCacheDir().getAbsolutePath();
-        fileName += "/audiorecordtest.3gp";
+        fileName += "/file.mp3";
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
     }
@@ -103,24 +115,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.record) {
-            if(record_bool){
+            if(record_bool){ //録音開始
                 if(!playback_bool) {
                     playback_bool = true;
                     ((TextView) findViewById(R.id.playback)).setText("音源再生");
                     stopPlaying(); //音声停止
                 }
-                if(!pause_bool) {
-                    pause_bool = true;
+                if(!play_pause_bool) {
+                    play_pause_bool = true;
                     ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
                 }
                 record_bool = false;
                 ((TextView)findViewById(R.id.record)).setText("録音停止");
                 startRecording();
             }
-            else{
+            else{ //録音停止
+                if(!record_pause_bool){
+                    record_pause_bool = true;
+                    ((TextView)findViewById(R.id.record_pause)).setText("録音一時停止");
+                }
                 record_bool = true;
                 ((TextView)findViewById(R.id.record)).setText("録音開始");
                 stopRecording(); //録音停止
+            }
+        }
+        else if(v.getId() == R.id.record_pause){
+            if(record_pause_bool && !record_bool){
+                record_pause_bool = false;
+                ((TextView)findViewById(R.id.record_pause)).setText("録音再開");
+                recorder.pause(); //録音一時停止
+            }
+            else if(!record_pause_bool){
+                record_pause_bool = true;
+                ((TextView)findViewById(R.id.record_pause)).setText("録音一時停止");
+                recorder.resume(); //録音スタート
             }
         }
         else if (v.getId() == R.id.playback) {
@@ -130,13 +158,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ((TextView) findViewById(R.id.record)).setText("録音開始");
                     stopRecording(); //録音停止
                 }
+                if(!record_pause_bool){
+                    record_pause_bool = true;
+                    ((TextView)findViewById(R.id.record_pause)).setText("録音一時停止");
+                }
                 playback_bool = false;
                 ((TextView)findViewById(R.id.playback)).setText("音源終了");
                 startPlaying(); //音声再生
             }
             else {
-                if(!pause_bool){
-                    pause_bool = true;
+                if(!play_pause_bool){
+                    play_pause_bool = true;
                     ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
                 }
                 playback_bool = true;
@@ -145,13 +177,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
         else if(v.getId() == R.id.playback_pause){
-            if(pause_bool && !playback_bool){
-                pause_bool = false;
+            if(play_pause_bool && !playback_bool){
+                play_pause_bool = false;
                 ((TextView) findViewById(R.id.playback_pause)).setText("再生");
                 player.pause(); //音声一時停止
             }
-            else if(!pause_bool){
-                pause_bool = true;
+            else if(!play_pause_bool){
+                play_pause_bool = true;
                 ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
                 player.start(); //途中から再生
             }
@@ -177,9 +209,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             player = null;
         }
 
-        if (!pause_bool){
-            pause_bool = true;
+        if (!play_pause_bool){
+            play_pause_bool = true;
             ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
+        }
+
+        if(!record_pause_bool){
+            record_pause_bool = false;
+            ((TextView) findViewById(R.id.playback_pause)).setText("録音一時停止");
         }
     }
 }
