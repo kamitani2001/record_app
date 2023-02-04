@@ -4,10 +4,10 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.media.PlaybackParams;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean play_pause_bool = true; //再生の一時停止ボタンのbool
     private boolean record_bool = true; //録音ボタンのbool
     private boolean record_pause_bool = true; //録音の一時停止ボタンのbool
+
+    private float play_speed_judgment = 1;
     //録音の権限用
     private boolean permissionToRecordAccepted = false;
     private String [] permissions = {Manifest.permission.RECORD_AUDIO};
@@ -95,6 +97,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recorder = null;
     }
 
+    //再生速度
+    private void changePlaybackSpeed(float speed) {
+        if (player != null) {
+            PlaybackParams params = player.getPlaybackParams();
+            params.setSpeed(speed);
+            player.setPlaybackParams(params);
+            if(!playback_bool && !play_pause_bool){
+                player.pause();
+            }
+        }
+    }
+
+
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -106,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.playback_pause).setOnClickListener(this);
         findViewById(R.id.tenSkip).setOnClickListener(this);
         findViewById(R.id.tenReturn).setOnClickListener(this);
+        findViewById(R.id.speed).setOnClickListener(this);
 
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/file.mp3";
@@ -200,6 +216,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(!playback_bool) {
                 int currentPosition = player.getCurrentPosition();
                 player.seekTo(currentPosition - 10000);
+            }
+        }
+        else if (v.getId() == R.id.speed){
+            if(play_speed_judgment == 1){
+                changePlaybackSpeed((float) 1.5);
+                ((TextView) findViewById(R.id.speed)).setText("×1.5");
+                play_speed_judgment = 2;
+            }
+            else if(play_speed_judgment == 2){
+                changePlaybackSpeed((float) 2);
+                ((TextView) findViewById(R.id.speed)).setText("×2.0");
+                play_speed_judgment = 3;
+            }
+            else if(play_speed_judgment == 3){
+                changePlaybackSpeed((float) 0.5);
+                ((TextView) findViewById(R.id.speed)).setText("×0.5");
+                play_speed_judgment = 4;
+            }
+            else if(play_speed_judgment == 4){
+                changePlaybackSpeed((float) 1);
+                ((TextView) findViewById(R.id.speed)).setText("×1.0");
+                play_speed_judgment = 1;
             }
         }
     }
