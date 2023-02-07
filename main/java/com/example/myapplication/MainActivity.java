@@ -27,8 +27,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean play_pause_bool = true; //再生の一時停止ボタンのbool
     private boolean record_bool = true; //録音ボタンのbool
     private boolean record_pause_bool = true; //録音の一時停止ボタンのbool
-
     private float play_speed_judgment = 1;
+
     //録音の権限用
     private boolean permissionToRecordAccepted = false;
     private String [] permissions = {Manifest.permission.RECORD_AUDIO};
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
                 break;
         }
-        if (!permissionToRecordAccepted ) finish();
+        if (!permissionToRecordAccepted) finish();
     }
     //---------------音声---------------
     //再生
@@ -109,7 +109,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
-
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -202,6 +201,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 else{
                     startPlaying(); //音声再生
+                    if(play_speed_judgment == 1){
+                        changePlaybackSpeed((float) 1.0);
+                    }
+                    else if(play_speed_judgment == 2){
+                        changePlaybackSpeed((float) 1.5);
+                    }
+                    else if(play_speed_judgment == 3){
+                        changePlaybackSpeed((float) 2.0);
+                    }
+                    else if(play_speed_judgment == 4){
+                        changePlaybackSpeed((float) 0.5);
+                    }
+                    player.start();
                 }
             }
             else {
@@ -213,7 +225,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 player.pause(); //音声一時停止
             }
         }
-
         else if(v.getId() == R.id.playstop){
             if(!play_pause_bool){
                 stopPlaying(); //音声停止
@@ -227,11 +238,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 playButton.setImageResource(R.drawable.playback);
             }
         }
-
         else if (v.getId() == R.id.tenSkip){
             if(!playback_bool) {
                 int currentPosition = player.getCurrentPosition();
-                player.seekTo(currentPosition + 5000);
+                player.seekTo(currentPosition + 10000);
             }
         }
         else if (v.getId() == R.id.tenReturn){
