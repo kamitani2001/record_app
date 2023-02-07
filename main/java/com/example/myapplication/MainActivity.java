@@ -310,5 +310,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ImageView playButton = (ImageView)findViewById(R.id.record_pause);
             playButton.setImageResource(R.drawable.recordinterruption);
         }
+
+        if(play_speed_judgment != 1){
+            changePlaybackSpeed((float) 1);
+            ImageView playButton = (ImageView)findViewById(R.id.speed);
+            playButton.setImageResource(R.drawable.speed1);
+        }
     }
 }
