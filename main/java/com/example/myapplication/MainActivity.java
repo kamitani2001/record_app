@@ -8,7 +8,7 @@ import android.media.PlaybackParams;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -56,8 +56,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 public void onCompletion(MediaPlayer mp) {
                     // 再生終了時に呼び出されます
                     playback_bool = true;
-                    ((TextView) findViewById(R.id.playback)).setText("音源再生");
                     stopPlaying(); //音声停止
+                    ImageView playButton = (ImageView)findViewById(R.id.playback);
+                    playButton.setImageResource(R.drawable.playback);
                 }
             });
             player.start();
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             PlaybackParams params = player.getPlaybackParams();
             params.setSpeed(speed);
             player.setPlaybackParams(params);
-            if(!playback_bool && !play_pause_bool){
+            if(playback_bool && !play_pause_bool){
                 player.pause();
             }
         }
@@ -118,13 +119,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.record).setOnClickListener(this);
         findViewById(R.id.record_pause).setOnClickListener(this);
         findViewById(R.id.playback).setOnClickListener(this);
-        findViewById(R.id.playback_pause).setOnClickListener(this);
+        findViewById(R.id.playstop).setOnClickListener(this);
         findViewById(R.id.tenSkip).setOnClickListener(this);
         findViewById(R.id.tenReturn).setOnClickListener(this);
         findViewById(R.id.speed).setOnClickListener(this);
 
         fileName = getExternalCacheDir().getAbsolutePath();
-        fileName += "/file.mp3";
+        fileName += "/file.3gp";
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
     }
@@ -136,80 +137,101 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(record_bool){ //録音開始
                 if(!playback_bool) {
                     playback_bool = true;
-                    ((TextView) findViewById(R.id.playback)).setText("音源再生");
+                    ImageView playButton = (ImageView)findViewById(R.id.playback);
+                    playButton.setImageResource(R.drawable.playback);
                     stopPlaying(); //音声停止
                 }
                 if(!play_pause_bool) {
                     play_pause_bool = true;
-                    ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
+                    ImageView playButton = (ImageView)findViewById(R.id.playback);
+                    playButton.setImageResource(R.drawable.playback);
                 }
                 record_bool = false;
-                ((TextView)findViewById(R.id.record)).setText("録音停止");
+                ImageView playButton = (ImageView)findViewById(R.id.record);
+                playButton.setImageResource(R.drawable.recordstop);
                 startRecording();
             }
             else{ //録音停止
                 if(!record_pause_bool){
                     record_pause_bool = true;
-                    ((TextView)findViewById(R.id.record_pause)).setText("録音一時停止");
+                    ImageView playButton = (ImageView)findViewById(R.id.record_pause);
+                    playButton.setImageResource(R.drawable.recordinterruption);
                 }
                 record_bool = true;
-                ((TextView)findViewById(R.id.record)).setText("録音開始");
+                ImageView playButton = (ImageView)findViewById(R.id.record);
+                playButton.setImageResource(R.drawable.recordstart);
                 stopRecording(); //録音停止
             }
         }
         else if(v.getId() == R.id.record_pause){
             if(record_pause_bool && !record_bool){
                 record_pause_bool = false;
-                ((TextView)findViewById(R.id.record_pause)).setText("録音再開");
+                ImageView playButton = (ImageView)findViewById(R.id.record_pause);
+                playButton.setImageResource(R.drawable.recordplay);
                 recorder.pause(); //録音一時停止
             }
             else if(!record_pause_bool){
                 record_pause_bool = true;
-                ((TextView)findViewById(R.id.record_pause)).setText("録音一時停止");
+                ImageView playButton = (ImageView)findViewById(R.id.record_pause);
+                playButton.setImageResource(R.drawable.recordinterruption);
                 recorder.resume(); //録音スタート
             }
         }
+
         else if (v.getId() == R.id.playback) {
             if(playback_bool) {
                 if(!record_bool) {
                     record_bool = true;
-                    ((TextView) findViewById(R.id.record)).setText("録音開始");
+                    ImageView playButton = (ImageView)findViewById(R.id.record);
+                    playButton.setImageResource(R.drawable.recordstart);
                     stopRecording(); //録音停止
                 }
                 if(!record_pause_bool){
                     record_pause_bool = true;
-                    ((TextView)findViewById(R.id.record_pause)).setText("録音一時停止");
+                    ImageView playButton = (ImageView)findViewById(R.id.record_pause);
+                    playButton.setImageResource(R.drawable.recordinterruption);
                 }
                 playback_bool = false;
-                ((TextView)findViewById(R.id.playback)).setText("音源終了");
-                startPlaying(); //音声再生
-            }
-            else {
+
+                ImageView playButton = (ImageView)findViewById(R.id.playback);
+                playButton.setImageResource(R.drawable.play_pause);
+
                 if(!play_pause_bool){
                     play_pause_bool = true;
-                    ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
+                    player.start();
                 }
-                playback_bool = true;
-                ((TextView) findViewById(R.id.playback)).setText("音源再生");
-                stopPlaying(); //音声停止
+                else{
+                    startPlaying(); //音声再生
+                }
             }
-        }
-        else if(v.getId() == R.id.playback_pause){
-            if(play_pause_bool && !playback_bool){
+            else {
+                playback_bool = true;
+                ImageView playButton = (ImageView)findViewById(R.id.playback);
+                playButton.setImageResource(R.drawable.playback);
+
                 play_pause_bool = false;
-                ((TextView) findViewById(R.id.playback_pause)).setText("再生");
                 player.pause(); //音声一時停止
             }
-            else if(!play_pause_bool){
+        }
+
+        else if(v.getId() == R.id.playstop){
+            if(!play_pause_bool){
+                stopPlaying(); //音声停止
                 play_pause_bool = true;
-                ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
-                player.start(); //途中から再生
+            }
+            else if(!playback_bool){
+                stopPlaying(); //音声停止
+                play_pause_bool = true;
+                playback_bool = true;
+                ImageView playButton = (ImageView)findViewById(R.id.playback);
+                playButton.setImageResource(R.drawable.playback);
             }
         }
+
         else if (v.getId() == R.id.tenSkip){
             if(!playback_bool) {
                 int currentPosition = player.getCurrentPosition();
-                player.seekTo(currentPosition + 10000);
+                player.seekTo(currentPosition + 5000);
             }
         }
         else if (v.getId() == R.id.tenReturn){
@@ -221,22 +243,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         else if (v.getId() == R.id.speed){
             if(play_speed_judgment == 1){
                 changePlaybackSpeed((float) 1.5);
-                ((TextView) findViewById(R.id.speed)).setText("×1.5");
+                ImageView playButton = (ImageView)findViewById(R.id.speed);
+                playButton.setImageResource(R.drawable.speed1dot5);
                 play_speed_judgment = 2;
             }
             else if(play_speed_judgment == 2){
                 changePlaybackSpeed((float) 2);
-                ((TextView) findViewById(R.id.speed)).setText("×2.0");
+                ImageView playButton = (ImageView)findViewById(R.id.speed);
+                playButton.setImageResource(R.drawable.speed2);
                 play_speed_judgment = 3;
             }
             else if(play_speed_judgment == 3){
                 changePlaybackSpeed((float) 0.5);
-                ((TextView) findViewById(R.id.speed)).setText("×0.5");
+                ImageView playButton = (ImageView)findViewById(R.id.speed);
+                playButton.setImageResource(R.drawable.speed0dot5);
                 play_speed_judgment = 4;
             }
             else if(play_speed_judgment == 4){
                 changePlaybackSpeed((float) 1);
-                ((TextView) findViewById(R.id.speed)).setText("×1.0");
+                ImageView playButton = (ImageView)findViewById(R.id.speed);
+                playButton.setImageResource(R.drawable.speed1);
                 play_speed_judgment = 1;
             }
         }
@@ -247,7 +273,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onStop();
         if (recorder != null) {
             record_bool = true;
-            ((TextView) findViewById(R.id.record)).setText("録音開始");
+            ImageView playButton = (ImageView)findViewById(R.id.record);
+            playButton.setImageResource(R.drawable.recordstart);
 
             recorder.release();
             recorder = null;
@@ -255,7 +282,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (player != null) {
             playback_bool = true;
-            ((TextView) findViewById(R.id.playback)).setText("音源再生");
+            ImageView playButton = (ImageView)findViewById(R.id.playback);
+            playButton.setImageResource(R.drawable.playback);
 
             player.release();
             player = null;
@@ -263,12 +291,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (!play_pause_bool){
             play_pause_bool = true;
-            ((TextView) findViewById(R.id.playback_pause)).setText("音源一時停止");
+            ImageView playButton = (ImageView)findViewById(R.id.playback);
+            playButton.setImageResource(R.drawable.playback);
         }
 
         if(!record_pause_bool){
             record_pause_bool = false;
-            ((TextView) findViewById(R.id.playback_pause)).setText("録音一時停止");
+            ImageView playButton = (ImageView)findViewById(R.id.record_pause);
+            playButton.setImageResource(R.drawable.recordinterruption);
         }
     }
 }
