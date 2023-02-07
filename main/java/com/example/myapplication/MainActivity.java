@@ -312,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         if(play_speed_judgment != 1){
+            play_speed_judgment = 1;
             changePlaybackSpeed((float) 1);
             ImageView playButton = (ImageView)findViewById(R.id.speed);
             playButton.setImageResource(R.drawable.speed1);
